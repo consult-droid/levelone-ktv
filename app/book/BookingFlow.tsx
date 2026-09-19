@@ -168,14 +168,14 @@ export function BookingFlow() {
             Tomorrow
           </button>
           <label
-            className={`chip cursor-pointer ${
+            className={`chip relative cursor-pointer ${
               date !== manilaToday() && date !== manilaToday(1) ? 'chip-on' : ''
             }`}
           >
             Pick date
             <input
               type="date"
-              className="sr-only"
+              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
               min={manilaToday()}
               max={manilaToday(data?.advanceDays ?? 60)}
               value={date}
