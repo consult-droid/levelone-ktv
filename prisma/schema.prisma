@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum BookingStatus {
+  HELD
+  PAYMENT_SUBMITTED
+  CONFIRMED
+  CHECKED_IN
+  COMPLETED
+  CANCELLED
+  EXPIRED
+  PAYMENT_REJECTED
+}
+
+enum BookingSource {
+  ONLINE
+  WALK_IN
+}
+
+enum PaymentMethod {
+  QRPH
+  CASH
+  OTHER
+}
+
+enum PaymentStatus {
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model Room {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  color     String
+  tagline   String   @default("")
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  bookings Booking[]
+  blocks   RoomBlock[]
+}
+
+model Booking {
+  id           String        @id @default(cuid())
+  reference    String        @unique
+  publicToken  String        @unique
+  roomId       String
+  customerName String
+  mobile       String
+  email        String?
+  guestCount   Int
+  startTime    DateTime
+  endTime      DateTime
+  hourlyRate   Int
+  totalAmount  Int
+  status       BookingStatus @default(HELD)
+  source       BookingSource @default(ONLINE)
+  notes        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  expiresAt    DateTime?
+  checkedInAt  DateTime?
+
+  room     Room      @relation(fields: [roomId], references: [id])
+  payments Payment[]
+
+  @@index([roomId, startTime])
+  @@index([status, expiresAt])
+  @@index([startTime])
+  @@index([mobile])
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  bookingId      String
+  method         PaymentMethod @default(QRPH)
+  amountExpected Int
+  referenceNumber String?
+  proofUrl       String?
+  proofKey       String?
+  proofMime      String?
+  proofData      Bytes?
+  status         PaymentStatus @default(SUBMITTED)
+  verifiedBy     String?
+  verifiedAt     DateTime?
+  rejectionNote  String?
+  createdAt      DateTime      @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+}
+
+model RoomBlock {
+  id        String   @id @default(cuid())
+  roomId    String
+  startTime DateTime
+  endTime   DateTime
+  reason    String
+  note      String?
+  createdBy String?
+  createdAt DateTime @default(now())
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, startTime])
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String
+  action    String
+  entity    String
+  entityId  String?
+  detail    String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model EmailOutbox {
+  id        String    @id @default(cuid())
+  to        String
+  subject   String
+  body      String
+  sentAt    DateTime?
+  error     String?
+  createdAt DateTime  @default(now())
+
+  @@index([sentAt])
+}
