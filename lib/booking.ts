@@ -188,7 +188,7 @@ export async function submitProof(opts: {
         proofKey: opts.proofKey || null,
         proofUrl: opts.proofUrl || null,
         proofMime: opts.proofMime || null,
-        proofData: opts.proofData ? new Uint8Array(opts.proofData) : null,,
+        proofData: opts.proofData ? new Uint8Array(opts.proofData) : null,
         status: PaymentStatus.SUBMITTED,
       },
     }),
