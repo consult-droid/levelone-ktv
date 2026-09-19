@@ -33,7 +33,7 @@ try {
           ADD CONSTRAINT booking_no_overlap
           EXCLUDE USING gist (
             "roomId" WITH =,
-            tstzrange("startTime", "endTime", '[)') WITH &&
+                        tsrange("startTime", "endTime", '[)') WITH &&
           )
           WHERE (
             "status" IN ('HELD','PAYMENT_SUBMITTED','CONFIRMED','CHECKED_IN')
