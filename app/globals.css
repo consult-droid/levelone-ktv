@@ -58,3 +58,10 @@ body {
 .slash {
   background: linear-gradient(115deg, transparent 45%, rgba(124, 58, 237, 0.35) 50%, transparent 55%);
 }
+
+/* Chrome renders the date picker icon near-black, invisible on our dark field. */
+input[type='date']::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.6;
+  cursor: pointer;
+}
